@@ -601,7 +601,7 @@ export default function App() {
             Mural Festival
           </h1>
           <p style={{ color: C.border, fontSize: 15, maxWidth: 500, margin: '0 auto 22px', lineHeight: 1.65 }}>
-            Bid on original 5×5 murals painted live. Follow each artist's progress and place your bid before the auction closes.
+            Bid on original 8×8 murals painted live. Follow each artist's progress and place your bid before the auction closes.
           </p>
           <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', fontSize: 13, color: C.chalkLight }}>
             <span>🎨 {murals.length} murals</span>
