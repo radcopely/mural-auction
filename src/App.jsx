@@ -291,7 +291,7 @@ async function saveMural() {
       return
     }
     setSaving(true)
-    const { error } = await supabase
+const { error } = await supabase
       .from('murals')
       .update({
         title:        fields.title,
@@ -299,6 +299,7 @@ async function saveMural() {
         description:  fields.description,
         status:       fields.status,
         starting_bid: Number(fields.starting_bid),
+        current_bid:  fields.bids?.length ? fields.current_bid : Number(fields.starting_bid),
         auction_end:  fields.auction_end,
         photos:       fields.photos,
       })
