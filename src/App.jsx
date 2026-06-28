@@ -315,6 +315,29 @@ const { error } = await supabase
       setTimeout(() => setSaveMsg(''), 2500)
     }
   }
+async function moveUpMural(index) {
+    if (index === 0) return
+    const updated = [...murals]
+    const temp = updated[index - 1]
+    updated[index - 1] = updated[index]
+    updated[index] = temp
+    for (let i = 0; i < updated.length; i++) {
+      await supabase.from('murals').update({ sort_order: i }).eq('id', updated[i].id)
+    }
+    onRefresh()
+  }
+
+  async function moveDownMural(index) {
+    if (index === murals.length - 1) return
+    const updated = [...murals]
+    const temp = updated[index + 1]
+    updated[index + 1] = updated[index]
+    updated[index] = temp
+    for (let i = 0; i < updated.length; i++) {
+      await supabase.from('murals').update({ sort_order: i }).eq('id', updated[i].id)
+    }
+    onRefresh()
+  }
 async function deleteMural(id) {
     if (!window.confirm('Are you sure you want to delete this mural? This will also delete all its bids.')) return
     console.log('Deleting mural with id:', id)
@@ -400,8 +423,18 @@ async function addMural() {
         {/* Sidebar */}
         <div style={{ width: 210, background: C.warm, borderRight: `1px solid ${C.border}`, overflowY: 'auto', flexShrink: 0, padding: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 8 }}>Murals</div>
-          {murals.map(m => (
-            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+{murals.map((m, index) => (
+            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <button onClick={() => moveUpMural(index)} disabled={index === 0} style={{
+                  background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer',
+                  color: index === 0 ? C.border : C.muted, fontSize: 10, padding: '1px 3px', lineHeight: 1
+                }}>▲</button>
+                <button onClick={() => moveDownMural(index)} disabled={index === murals.length - 1} style={{
+                  background: 'none', border: 'none', cursor: index === murals.length - 1 ? 'default' : 'pointer',
+                  color: index === murals.length - 1 ? C.border : C.muted, fontSize: 10, padding: '1px 3px', lineHeight: 1
+                }}>▼</button>
+              </div>
               <button onClick={() => setActiveId(m.id)} style={{
                 flex: 1, textAlign: 'left',
                 padding: '8px 10px', borderRadius: 4, border: 'none',
@@ -561,7 +594,7 @@ export default function App() {
     const { data: bidData } = await supabase
       .from('bids')
       .select('*')
-      .order('created_at', { ascending: true })
+      .order('sort_order', { ascending: true })
 
     const bidsMap = {}
     ;(bidData || []).forEach(b => {
