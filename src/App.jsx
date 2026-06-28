@@ -314,6 +314,16 @@ const { error } = await supabase
       setTimeout(() => setSaveMsg(''), 2500)
     }
   }
+async function deleteMural(id) {
+    if (!window.confirm('Are you sure you want to delete this mural? This will also delete all its bids.')) return
+    const { error } = await supabase.from('murals').delete().eq('id', id)
+    if (error) {
+      alert('Error deleting: ' + error.message)
+      return
+    }
+    onRefresh()
+    setActiveId(null)
+  }
 async function addMural() {
     if (!newTitle.trim() || !newArtist.trim()) return
     const auctionEnd = new Date(Date.now() + 7 * 86400000).toISOString()
@@ -388,16 +398,23 @@ async function addMural() {
         <div style={{ width: 210, background: C.warm, borderRight: `1px solid ${C.border}`, overflowY: 'auto', flexShrink: 0, padding: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 8 }}>Murals</div>
           {murals.map(m => (
-            <button key={m.id} onClick={() => setActiveId(m.id)} style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              padding: '8px 10px', borderRadius: 4, border: 'none', marginBottom: 2,
-              background: activeId === m.id ? C.spray : 'transparent',
-              color: activeId === m.id ? C.white : C.ink,
-              fontSize: 13, cursor: 'pointer',
-            }}>
-              {m.title || 'Untitled'}
-              <span style={{ display: 'block', fontSize: 11, opacity: 0.7 }}>{m.artist}</span>
-            </button>
+            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+              <button onClick={() => setActiveId(m.id)} style={{
+                flex: 1, textAlign: 'left',
+                padding: '8px 10px', borderRadius: 4, border: 'none',
+                background: activeId === m.id ? C.spray : 'transparent',
+                color: activeId === m.id ? C.white : C.ink,
+                fontSize: 13, cursor: 'pointer',
+              }}>
+                {m.title || 'Untitled'}
+                <span style={{ display: 'block', fontSize: 11, opacity: 0.7 }}>{m.artist}</span>
+              </button>
+              <button onClick={() => deleteMural(m.id)} style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: C.muted, fontSize: 16, padding: '4px',
+                flexShrink: 0
+              }}>🗑</button>
+            </div>
           ))}
 
           <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
