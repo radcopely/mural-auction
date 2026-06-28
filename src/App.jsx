@@ -302,6 +302,7 @@ const { error } = await supabase
         current_bid:  fields.bids?.length ? fields.current_bid : Number(fields.starting_bid),
         auction_end:  fields.auction_end,
         photos:       fields.photos,
+        sort_order:   Number(fields.sort_order) || 0,
       })
       .eq('id', activeId)
 
@@ -552,7 +553,7 @@ export default function App() {
     const { data: muralData, error: muralErr } = await supabase
       .from('murals')
       .select('*')
-      .order('created_at', { ascending: true })
+      .order('sort_order', { ascending: true })
 
     if (muralErr) { setError(muralErr.message); setLoading(false); return }
 
