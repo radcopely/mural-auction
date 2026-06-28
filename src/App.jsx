@@ -316,7 +316,9 @@ const { error } = await supabase
   }
 async function deleteMural(id) {
     if (!window.confirm('Are you sure you want to delete this mural? This will also delete all its bids.')) return
-    const { error } = await supabase.from('murals').delete().eq('id', id)
+    console.log('Deleting mural with id:', id)
+    const { data, error } = await supabase.from('murals').delete().eq('id', id).select()
+    console.log('Delete result:', data, error)
     if (error) {
       alert('Error deleting: ' + error.message)
       return
