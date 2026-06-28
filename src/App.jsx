@@ -268,6 +268,7 @@ function AdminPanel({ murals, onClose, onRefresh }) {
   const [activeId, setActiveId] = useState(murals[0]?.id || null)
   const [fields, setFields]     = useState({})
   const [newPhotoUrl, setNewPhotoUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [newTitle, setNewTitle]   = useState('')
   const [newArtist, setNewArtist] = useState('')
   const [saving, setSaving]       = useState(false)
@@ -337,10 +338,31 @@ async function addMural() {
     setActiveId(data.id)
   }
 
-  function addPhoto() {
+ async function addPhoto() {
     if (!newPhotoUrl.trim()) return
     patch('photos', [...(fields.photos || []), newPhotoUrl.trim()])
     setNewPhotoUrl('')
+  }
+
+  async function uploadPhoto(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random()}.${fileExt}`
+    const { data, error } = await supabase.storage
+      .from('mural-photos')
+      .upload(fileName, file)
+    if (error) {
+      alert('Error uploading photo: ' + error.message)
+      setUploading(false)
+      return
+    }
+    const { data: { publicUrl } } = supabase.storage
+      .from('mural-photos')
+      .getPublicUrl(fileName)
+    patch('photos', [...(fields.photos || []), publicUrl])
+    setUploading(false)
   }
 
   function removePhoto(idx) {
@@ -426,10 +448,14 @@ async function addMural() {
             {/* Photos */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: C.ink, marginBottom: 8 }}>Progress Photos</div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <input value={newPhotoUrl} onChange={e => setNewPhotoUrl(e.target.value)} placeholder="Paste image URL…" style={{ ...inputStyle, flex: 1 }} />
-                <button onClick={addPhoto} style={{ ...btn(C.chalk), whiteSpace: 'nowrap' }}>Add Photo</button>
-              </div>
+             <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+  <input value={newPhotoUrl} onChange={e => setNewPhotoUrl(e.target.value)} placeholder="Paste image URL…" style={{ ...inputStyle, flex: 1, minWidth: 200 }} />
+  <button onClick={addPhoto} style={{ ...btn(C.chalk), whiteSpace: 'nowrap' }}>Add URL</button>
+  <label style={{ ...btn(C.spray), whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+    {uploading ? 'Uploading…' : '📷 Upload Photo'}
+    <input type="file" accept="image/*" onChange={uploadPhoto} style={{ display: 'none' }} />
+  </label>
+</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {(fields.photos || []).map((url, i) => (
                   <div key={i} style={{ position: 'relative' }}>
