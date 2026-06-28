@@ -352,7 +352,7 @@ async function addMural() {
     const fileExt = file.name.split('.').pop()
     const fileName = `${Math.random()}.${fileExt}`
     const { data, error } = await supabase.storage
-      .from('mural-photos')
+      .from('Mural-Photos')
       .upload(fileName, file)
     if (error) {
       alert('Error uploading photo: ' + error.message)
@@ -360,7 +360,7 @@ async function addMural() {
       return
     }
     const { data: { publicUrl } } = supabase.storage
-      .from('mural-photos')
+      .from('Mural-Photos')
       .getPublicUrl(fileName)
     patch('photos', [...(fields.photos || []), publicUrl])
     setUploading(false)
