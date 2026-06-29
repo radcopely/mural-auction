@@ -635,10 +635,15 @@ export default function App() {
     })
     if (bidErr) return bidErr.message
 
-    // Update mural's current_bid
+// Update mural's current_bid
+    const { count } = await supabase
+      .from('bids')
+      .select('*', { count: 'exact', head: true })
+      .eq('mural_id', muralId)
+
     const { error: muralErr } = await supabase
       .from('murals')
-      .update({ current_bid: bidData.amount })
+      .update({ current_bid: bidData.amount, bid_count: count })
       .eq('id', muralId)
     if (muralErr) return muralErr.message
 
