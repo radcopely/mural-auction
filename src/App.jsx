@@ -594,7 +594,7 @@ export default function App() {
     const { data: bidData } = await supabase
       .from('bids')
       .select('*')
-      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
 
     const bidsMap = {}
     ;(bidData || []).forEach(b => {
