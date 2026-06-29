@@ -645,10 +645,11 @@ export default function App() {
       .from('murals')
       .update({ current_bid: bidData.amount, bid_count: count })
       .eq('id', muralId)
-    if (muralErr) return muralErr.message
-
-    await fetchMurals()
-    return null
+if (muralErr) {
+      console.log('Mural update error:', muralErr.message)
+      return muralErr.message
+    }
+    console.log('Mural updated successfully, count:', count, 'amount:', bidData.amount)
   }
 
   const filtered = murals.filter(m => {
